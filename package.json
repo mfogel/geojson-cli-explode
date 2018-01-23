@@ -21,10 +21,10 @@
   "author": "Mike Fogel <mike@fogel.ca>",
   "license": "ISC",
   "dependencies": {
-    "yargs": "^10.1.1"
+    "yargs": "^11.0.0"
   },
   "devDependencies": {
-    "geojson-equality": "^0.1.7",
+    "geojson-equality": "^0.2.0",
     "jest": "^22.1.4"
   }
 }
