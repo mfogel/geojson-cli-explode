@@ -1,0 +1,30 @@
+{
+  "name": "geojson-cli-explode",
+  "version": "0.1.0",
+  "description": "A command-line tool to add, update, or remove bounding boxes from your geojson files.",
+  "repository": "github:mfogel/geojson-cli-explode",
+  "main": "src/index.js",
+  "bin": "src/cli.js",
+  "scripts": {
+    "test": "jest",
+    "test-debug": "node --inspect-brk node_modules/.bin/jest --runInBand"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "keywords": [
+    "geojson",
+    "explode",
+    "featurecollection",
+    "feature"
+  ],
+  "author": "Mike Fogel <mike@fogel.ca>",
+  "license": "ISC",
+  "dependencies": {
+    "yargs": "^10.1.1"
+  },
+  "devDependencies": {
+    "geojson-equality": "^0.1.7",
+    "jest": "^22.1.4"
+  }
+}
