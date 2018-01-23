@@ -29,9 +29,9 @@ const expectJsonEqual = (pathActual, pathExpected) => {
  *
  * Note that aborting the test rather than clobbering what's in the way isn't
  * practical: https://github.com/facebook/jest/issues/2713 */
-const clearFeatures = () =>
+const clearFeatures = (target = featuresDir) =>
   new Promise((resolve, reject) =>
-    fs.rmdir(featuresDir, () => fs.unlink(featuresDir, () => resolve()))
+    fs.rmdir(target, () => fs.unlink(target, () => resolve()))
   )
 
 beforeEach(clearFeatures)
@@ -80,23 +80,23 @@ test('empty feature collection', () => {
   const streamIn = getStream(`${geojsonDir}/feature-collection-empty.geojson`)
 
   expect.assertions(2)
-  return explodeTest(streamIn).then(() => {
-    expect(fs.statSync(featuresDir).isDirectory()).toBeTruthy()
-    expect(fs.readdirSync(featuresDir)).toEqual([])
-  })
+  return explodeTest(streamIn)
+    .then(() => expect(fs.statSync(featuresDir).isDirectory()).toBeTruthy())
+    .then(() => expect(fs.readdirSync(featuresDir)).toEqual([]))
 })
 
 test('feature collection with one element', () => {
   const streamIn = getStream(`${geojsonDir}/feature-collection-one.geojson`)
 
   expect.assertions(2)
-  return explodeTest(streamIn).then(() => {
-    expect(fs.readdirSync(featuresDir).toEqual(['1.geojson']))
-    expectJsonEqual(
-      `${featuresDir}/1.geojson`,
-      `${geojsonDir}/feature-first.geojson`
+  return explodeTest(streamIn)
+    .then(() => expect(fs.readdirSync(featuresDir).toEqual(['1.geojson'])))
+    .then(() =>
+      expectJsonEqual(
+        `${featuresDir}/1.geojson`,
+        `${geojsonDir}/feature-first.geojson`
+      )
     )
-  })
 })
 
 test('feature collection with two elements', () => {
@@ -116,9 +116,27 @@ test('feature collection with two elements', () => {
   })
 })
 
-test('directory option', () => {})
+test('directory option', () => {
+  const otherFeatures = 'other-features'
+  clearFeatures(otherFeatures)
 
-test('extension option', () => {})
+  const streamIn = getStream(`${geojsonDir}/feature-collection-empty.geojson`)
+
+  expect.assertions(1)
+  return explodeTest(streamIn)
+    .then(() => expect(fs.statSync(featuresDir).isDirectory()).toBeTruthy())
+    .then(() => clearFeatures(otherFeatures))
+})
+
+test('extension option', () => {
+  const otherExtension = 'json'
+  const streamIn = getStream(`${geojsonDir}/feature-collection-one.geojson`)
+
+  expect.assertions(1)
+  return explodeTest(streamIn, { extension: otherExtension }).then(() =>
+    expect(fs.readdirSync(featuresDir).toEqual(['1.json']))
+  )
+})
 
 test('include bboxes in filenames basic', () => {})
 
