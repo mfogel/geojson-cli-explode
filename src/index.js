@@ -1,4 +1,5 @@
 const fs = require('fs')
+const JSONStream = require('JSONStream')
 
 const explodeOptsDefaults = {
   warn: console.warn,
@@ -10,9 +11,57 @@ const explodeOptsDefaults = {
 const explode = (streamIn, opts = {}) => {
   opts = Object.assign(explodeOptsDefaults, opts)
 
-  return new Promise((resolve, reject) =>
-    fs.mkdir(opts.directory, err => (err ? reject(err) : resolve()))
-  )
+  const handleMkdirError = (err, reject) => {
+    if (err.code === 'EEXIST') {
+      err = new Error(
+        `Cannot make target directory for features '${opts.directory}', something is in the way`
+      )
+    }
+    reject(err)
+  }
+
+  let seenType = false
+  const checkType = obj => {
+    if (obj['type'] === 'FeatureCollection') seenType = true
+  }
+
+  const filesWritten = []
+  const handleFeature = feature => {
+    // TODO: implement me
+  }
+
+  const handleJSONParseError = (err, reject) => {
+    if (!seenType) {
+      filesWritten.forEach(fs.unlinkSync)
+      fs.rmdirSync(opts.directory)
+    }
+    return reject(err)
+  }
+
+  const handleClose = (resolve, reject) => {
+    if (!seenType) {
+      filesWritten.forEach(fs.unlinkSync)
+      fs.rmdirSync(opts.directory)
+      return reject(new Error('Input is not a well-formed FeatureCollection'))
+    }
+    resolve()
+  }
+
+  return new Promise((resolve, reject) => {
+    try {
+      fs.mkdirSync(opts.directory)
+    } catch (err) {
+      return handleMkdirError(err, reject)
+    }
+
+    const featureStream = JSONStream.parse('features.*')
+    featureStream.on('header', checkType)
+    featureStream.on('footer', checkType)
+    featureStream.on('data', handleFeature)
+    featureStream.on('error', err => handleJSONParseError(err, reject))
+    featureStream.on('close', () => handleClose(resolve, reject))
+    streamIn.pipe(featureStream)
+  })
 }
 
 module.exports = { explode, explodeOptsDefaults }

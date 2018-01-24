@@ -25,7 +25,7 @@ require('yargs')
         includeBBoxes: yargs.includeBboxesInFilenames,
         warn: getWarn(yargs.silent)
       }
-      explode(stdin, opts).reject(onError)
+      explode(stdin, opts).catch(onError)
     }
   )
   .option('d', {

@@ -39,17 +39,26 @@ afterEach(clearFeatures)
 
 test('error on invalid json input', () => {
   const streamIn = getStream(`${geojsonDir}/not-json`)
-  return expect(explodeTest(streamIn)).rejects.toThrow()
+  expect.assertions(1)
+  return explodeTest(streamIn).catch(() =>
+    expect(fs.existsSync(featuresDir)).toBeFalsy()
+  )
 })
 
 test('error on input of bad geojson', () => {
   const streamIn = getStream(`${geojsonDir}/json-but-not-geojson.json`)
-  return expect(explodeTest(streamIn)).rejects.toThrow()
+  expect.assertions(1)
+  return explodeTest(streamIn).catch(() =>
+    expect(fs.existsSync(featuresDir)).toBeFalsy()
+  )
 })
 
 test('error on input of not a FeatureCollection', () => {
   const streamIn = getStream(`${geojsonDir}/feature-first.geojson`)
-  return expect(explodeTest(streamIn)).rejects.toThrow()
+  expect.assertions(1)
+  return explodeTest(streamIn).catch(() =>
+    expect(fs.existsSync(featuresDir)).toBeFalsy()
+  )
 })
 
 test('warn on output not proper Features', () => {
@@ -138,8 +147,8 @@ test('extension option', () => {
   )
 })
 
-test('include bboxes in filenames basic', () => {})
+test.skip('include bboxes in filenames basic', () => {})
 
-test('include bboxes in filenames, features with same bbox', () => {})
+test.skip('include bboxes in filenames, features with same bbox', () => {})
 
-test('error if including bboxes with output not proper Features', () => {})
+test.skip('error if including bboxes with output not proper Features', () => {})
