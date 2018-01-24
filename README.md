@@ -41,6 +41,10 @@ Send any warnings (normally written to `stderr`) straight to `/dev/null`.
 
 ## Changelog
 
+### Master
+
+* fix description in package.json
+
 ### 0.1
 
 * Initial release
