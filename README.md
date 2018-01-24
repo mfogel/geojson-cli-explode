@@ -1,9 +1,6 @@
-### *** In active dev - functionality described below doesn't all exist yet ***
-
 # geojson-cli-explode
 
-A command-line tool to explode geojson FeatureCollections into a separate geojson Feature files.
-
+A command-line tool to explode a GeoJSON FeatureCollection into a directory of separate GeoJSON Feature files.
 
 ## Quickstart
 
@@ -16,7 +13,7 @@ $ ls features/
 
 ## Usage
 
-A geojson file containing a `FeatureCollection` is expected via `stdin`. The `FeatureCollection` will be split into individual files, each containing one `Feature`.
+A GeoJSON file containing a `FeatureCollection` is expected via `stdin`. The `FeatureCollection` will be split into a series of individual files placed within the same directory, each file containing one `Feature`.
 
 ## Options
 
@@ -33,7 +30,7 @@ Use `extension` as the filename extension for the `Feature` files. Defaults to `
 If specified, the filename for each `Feature` file will be of the format:
 
 ```
-<int: position in original FeatureCollection>.<bounding box of Feature>.<extension (defaults to geojson)>
+<int: position in original FeatureCollection>.<bounding box of Feature>.<extension (default: 'geojson')>
 ```
 
 Example filename: `42.[-58.5314588,-34.705637,-58.3351249,-34.5265535].geojson`
@@ -44,6 +41,6 @@ Send any warnings (normally written to `stderr`) straight to `/dev/null`.
 
 ## Changelog
 
-### Master
+### 0.1
 
 * Initial release
