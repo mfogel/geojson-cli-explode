@@ -155,17 +155,52 @@ test('directory option', () => {
 })
 
 test('extension option', () => {
-  const otherExtension = 'json'
+  const extension = 'json'
   const streamIn = getStream(`${geojsonDir}/feature-collection-one.geojson`)
 
   expect.assertions(1)
-  return explodeTest(streamIn, { extension: otherExtension }).then(() =>
-    expect(fs.readdirSync(featuresDir)).toEqual(['1.json'])
+  return explodeTest(streamIn, { extension }).then(() =>
+    expect(fs.readdirSync(featuresDir)).toEqual([`1.${extension}`])
   )
 })
 
-test.skip('include bboxes in filenames basic', () => {})
+test('include bboxes in filenames basic', () => {
+  const streamIn = getStream(`${geojsonDir}/feature-collection-two.geojson`)
+  const includeBboxes = true
 
-test.skip('include bboxes in filenames, features with same bbox', () => {})
+  expect.assertions(1)
+  return explodeTest(streamIn, { includeBboxes }).then(() => {
+    expect(fs.readdirSync(featuresDir)).toEqual([
+      '1.[0,0,0,0].geojson',
+      '2.[-1.1,-1.1,2.2,2.2].geojson'
+    ])
+  })
+})
 
-test.skip('include bboxes in filenames, warn if unable to compute bbox and put dash in filename', () => {})
+test('include bboxes in filenames, features with same bbox', () => {
+  const streamIn = getStream(
+    `${geojsonDir}/feature-collection-same-bbox.geojson`
+  )
+  const includeBboxes = true
+
+  expect.assertions(1)
+  return explodeTest(streamIn, { includeBboxes }).then(() => {
+    expect(fs.readdirSync(featuresDir)).toEqual([
+      '1.[-1.1,-1.1,2.2,2.2].geojson',
+      '2.[-1.1,-1.1,2.2,2.2].geojson'
+    ])
+  })
+})
+
+test('include bboxes in filenames, warn if unable to compute bbox and put empty array in filename', () => {
+  const streamIn = getStream(
+    `${geojsonDir}/feature-collection-with-a-bad-feature.geojson`
+  )
+  const warn = jest.fn()
+  const includeBboxes = true
+
+  expect.assertions(2)
+  return explodeTest(streamIn, { warn, includeBboxes })
+    .then(() => expect(warn).toHaveBeenCalled())
+    .then(() => expect(fs.readdirSync(featuresDir)).toEqual(['1.[].geojson']))
+})

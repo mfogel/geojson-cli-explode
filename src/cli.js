@@ -22,7 +22,7 @@ require('yargs')
       const opts = {
         directory: yargs.directory,
         extension: yargs.extension,
-        includeBBoxes: yargs.includeBboxesInFilenames,
+        includeBboxes: yargs.includeBboxesInFilenames,
         warn: getWarn(yargs.silent)
       }
       explode(stdin, opts).catch(onError)

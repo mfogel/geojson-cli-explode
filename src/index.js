@@ -1,16 +1,17 @@
 const fs = require('fs')
 const geojsonhint = require('@mapbox/geojsonhint')
 const JSONStream = require('JSONStream')
+const turfBbox = require('@turf/bbox')
 
 const explodeOptsDefaults = {
   warn: console.warn,
   directory: 'features',
   extension: 'geojson',
-  includeBBoxes: false
+  includeBboxes: false
 }
 
 const explode = (streamIn, opts = {}) => {
-  opts = Object.assign(explodeOptsDefaults, opts)
+  opts = Object.assign({}, explodeOptsDefaults, opts)
 
   const handleMkdirError = (err, reject) => {
     if (err.code === 'EEXIST') {
@@ -30,7 +31,21 @@ const explode = (streamIn, opts = {}) => {
   let fileCnt = 0
   const handleFeature = feature => {
     fileCnt += 1
-    const path = `${opts.directory}/${fileCnt}.${opts.extension}`
+
+    const filenameParts = [String(fileCnt)]
+    let bboxComputeError
+    if (opts.includeBboxes) {
+      let bbox = []
+      try {
+        bbox = turfBbox(feature)
+      } catch (err) {
+        bboxComputeError = err
+      }
+      filenameParts.push(JSON.stringify(bbox))
+    }
+    filenameParts.push(opts.extension)
+
+    const path = `${opts.directory}/${filenameParts.join('.')}`
 
     const errors = geojsonhint.hint(feature)
     errors.forEach(e =>
@@ -38,6 +53,11 @@ const explode = (streamIn, opts = {}) => {
         `Warning: Invalid GeoJSON passed-through to ${path}: ${e.message}`
       )
     )
+    if (bboxComputeError) {
+      opts.warn(
+        `Warning: Unable to compute bounding box for ${path}: ${bboxComputeError.message}`
+      )
+    }
 
     fs.writeFileSync(path, JSON.stringify(feature))
     filesWritten.push(path)
