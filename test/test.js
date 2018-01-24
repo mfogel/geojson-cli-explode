@@ -25,17 +25,26 @@ const expectJsonEqual = (pathActual, pathExpected) => {
   expect(geojsonEq.compare(actual, expected)).toBeTruthy()
 }
 
-/* Delete anything in the way of our temporary directory
+/* Clear away our features dir
  *
  * Note that aborting the test rather than clobbering what's in the way isn't
  * practical: https://github.com/facebook/jest/issues/2713 */
-const clearFeatures = (target = featuresDir) =>
+const clearFeaturesDir = (target = featuresDir) =>
   new Promise((resolve, reject) =>
-    fs.rmdir(target, () => fs.unlink(target, () => resolve()))
+    fs.readdir(target, (err, files) => {
+      if (err) {
+        if (err.code === 'ENOENT') return resolve() /* nothing in the way */
+        console.error(`Something in the way of ${target}, plz (re)move it!`)
+        return reject(err)
+      }
+      files.forEach(file => fs.unlinkSync(`${target}/${file}`))
+      fs.rmdirSync(target)
+      return resolve()
+    })
   )
 
-beforeEach(clearFeatures)
-afterEach(clearFeatures)
+beforeEach(clearFeaturesDir)
+afterEach(clearFeaturesDir)
 
 test('error on invalid json input', () => {
   const streamIn = getStream(`${geojsonDir}/not-json`)
@@ -53,8 +62,16 @@ test('error on input of bad geojson', () => {
   )
 })
 
-test('error on input of not a FeatureCollection', () => {
+test('error on input of type is not a FeatureCollection', () => {
   const streamIn = getStream(`${geojsonDir}/feature-first.geojson`)
+  expect.assertions(1)
+  return explodeTest(streamIn).catch(() =>
+    expect(fs.existsSync(featuresDir)).toBeFalsy()
+  )
+})
+
+test('error on input of no type', () => {
+  const streamIn = getStream(`${geojsonDir}/no-type.geojson`)
   expect.assertions(1)
   return explodeTest(streamIn).catch(() =>
     expect(fs.existsSync(featuresDir)).toBeFalsy()
@@ -80,9 +97,9 @@ test('error on something in the way of features directory', () => {
   const streamIn = getStream(`${geojsonDir}/feature-collection-empty.geojson`)
 
   expect.assertions(1)
-  return explodeTest(streamIn).catch(() =>
-    expect(fs.readFileSync(featuresDir, 'utf8')).toEqual(content)
-  )
+  return explodeTest(streamIn)
+    .catch(() => expect(fs.readFileSync(featuresDir, 'utf8')).toEqual(content))
+    .then(() => fs.unlinkSync(featuresDir))
 })
 
 test('empty feature collection', () => {
@@ -99,7 +116,7 @@ test('feature collection with one element', () => {
 
   expect.assertions(2)
   return explodeTest(streamIn)
-    .then(() => expect(fs.readdirSync(featuresDir).toEqual(['1.geojson'])))
+    .then(() => expect(fs.readdirSync(featuresDir)).toEqual(['1.geojson']))
     .then(() =>
       expectJsonEqual(
         `${featuresDir}/1.geojson`,
@@ -113,7 +130,7 @@ test('feature collection with two elements', () => {
 
   expect.assertions(3)
   return explodeTest(streamIn).then(() => {
-    expect(fs.readdirSync(featuresDir).toEqual(['1.geojson', '2.geojson']))
+    expect(fs.readdirSync(featuresDir)).toEqual(['1.geojson', '2.geojson'])
     expectJsonEqual(
       `${featuresDir}/1.geojson`,
       `${geojsonDir}/feature-first.geojson`
@@ -127,14 +144,14 @@ test('feature collection with two elements', () => {
 
 test('directory option', () => {
   const otherFeatures = 'other-features'
-  clearFeatures(otherFeatures)
+  clearFeaturesDir(otherFeatures)
 
   const streamIn = getStream(`${geojsonDir}/feature-collection-empty.geojson`)
 
   expect.assertions(1)
   return explodeTest(streamIn)
     .then(() => expect(fs.statSync(featuresDir).isDirectory()).toBeTruthy())
-    .then(() => clearFeatures(otherFeatures))
+    .then(() => clearFeaturesDir(otherFeatures))
 })
 
 test('extension option', () => {
@@ -143,7 +160,7 @@ test('extension option', () => {
 
   expect.assertions(1)
   return explodeTest(streamIn, { extension: otherExtension }).then(() =>
-    expect(fs.readdirSync(featuresDir).toEqual(['1.json']))
+    expect(fs.readdirSync(featuresDir)).toEqual(['1.json'])
   )
 })
 
@@ -151,4 +168,4 @@ test.skip('include bboxes in filenames basic', () => {})
 
 test.skip('include bboxes in filenames, features with same bbox', () => {})
 
-test.skip('error if including bboxes with output not proper Features', () => {})
+test.skip('include bboxes in filenames, warn if unable to compute bbox and put dash in filename', () => {})

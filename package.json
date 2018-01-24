@@ -21,6 +21,7 @@
   "author": "Mike Fogel <mike@fogel.ca>",
   "license": "ISC",
   "dependencies": {
+    "@mapbox/geojsonhint": "^2.0.1",
     "JSONStream": "^1.3.2",
     "yargs": "^11.0.0"
   },

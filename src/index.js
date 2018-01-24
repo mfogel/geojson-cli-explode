@@ -1,4 +1,5 @@
 const fs = require('fs')
+const geojsonhint = require('@mapbox/geojsonhint')
 const JSONStream = require('JSONStream')
 
 const explodeOptsDefaults = {
@@ -26,8 +27,20 @@ const explode = (streamIn, opts = {}) => {
   }
 
   const filesWritten = []
+  let fileCnt = 0
   const handleFeature = feature => {
-    // TODO: implement me
+    fileCnt += 1
+    const path = `${opts.directory}/${fileCnt}.${opts.extension}`
+
+    const errors = geojsonhint.hint(feature)
+    errors.forEach(e =>
+      opts.warn(
+        `Warning: Invalid GeoJSON passed-through to ${path}: ${e.message}`
+      )
+    )
+
+    fs.writeFileSync(path, JSON.stringify(feature))
+    filesWritten.push(path)
   }
 
   const handleJSONParseError = (err, reject) => {
