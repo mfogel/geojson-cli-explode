@@ -1,6 +1,6 @@
 # geojson-cli-explode
 
-A command-line tool to explode a GeoJSON FeatureCollection into a directory of separate GeoJSON Feature files.
+Explode your GeoJSON FeatureCollections into directories of separate GeoJSON Feature files.
 
 ## Quickstart
 
