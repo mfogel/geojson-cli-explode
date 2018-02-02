@@ -45,6 +45,10 @@ Send any warnings (normally written to `stderr`) straight to `/dev/null`.
 
 ## Changelog
 
+### 0.1.2
+
+* set up CI: travis, coveralls
+
 ### 0.1.1
 
 * fix description in package.json
