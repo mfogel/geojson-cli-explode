@@ -6,7 +6,7 @@ const { explode } = require('../src/index.js')
 const GeojsonEquality = require('geojson-equality')
 const geojsonEq = new GeojsonEquality()
 
-const geojsonDir = 'test/geojson'
+const fixturesDir = 'test/fixtures'
 const featuresDir = 'test/features'
 
 const getStream = path => fs.createReadStream(path, 'utf8')
@@ -47,7 +47,7 @@ beforeEach(clearFeaturesDir)
 afterEach(clearFeaturesDir)
 
 test('error on invalid json input', () => {
-  const streamIn = getStream(`${geojsonDir}/not-json`)
+  const streamIn = getStream(`${fixturesDir}/not-json`)
   expect.assertions(1)
   return explodeTest(streamIn).catch(() =>
     expect(fs.existsSync(featuresDir)).toBeFalsy()
@@ -55,7 +55,7 @@ test('error on invalid json input', () => {
 })
 
 test('error on input of bad geojson', () => {
-  const streamIn = getStream(`${geojsonDir}/json-but-not-geojson.json`)
+  const streamIn = getStream(`${fixturesDir}/json-but-not-geojson.json`)
   expect.assertions(1)
   return explodeTest(streamIn).catch(() =>
     expect(fs.existsSync(featuresDir)).toBeFalsy()
@@ -63,7 +63,7 @@ test('error on input of bad geojson', () => {
 })
 
 test('error on input of type is not a FeatureCollection', () => {
-  const streamIn = getStream(`${geojsonDir}/feature-first.geojson`)
+  const streamIn = getStream(`${fixturesDir}/feature-first.geojson`)
   expect.assertions(1)
   return explodeTest(streamIn).catch(() =>
     expect(fs.existsSync(featuresDir)).toBeFalsy()
@@ -71,7 +71,7 @@ test('error on input of type is not a FeatureCollection', () => {
 })
 
 test('error on input of no type', () => {
-  const streamIn = getStream(`${geojsonDir}/no-type.geojson`)
+  const streamIn = getStream(`${fixturesDir}/no-type.geojson`)
   expect.assertions(1)
   return explodeTest(streamIn).catch(() =>
     expect(fs.existsSync(featuresDir)).toBeFalsy()
@@ -80,7 +80,7 @@ test('error on input of no type', () => {
 
 test('warn on output not proper Features', () => {
   const streamIn = getStream(
-    `${geojsonDir}/feature-collection-with-a-bad-feature.geojson`
+    `${fixturesDir}/feature-collection-with-a-bad-feature.geojson`
   )
   const warn = jest.fn()
 
@@ -94,7 +94,7 @@ test('error on something in the way of features directory', () => {
   const content = 'really valuable stuff here'
   fs.writeFileSync(featuresDir, content, 'utf8')
 
-  const streamIn = getStream(`${geojsonDir}/feature-collection-empty.geojson`)
+  const streamIn = getStream(`${fixturesDir}/feature-collection-empty.geojson`)
 
   expect.assertions(1)
   return explodeTest(streamIn)
@@ -103,7 +103,7 @@ test('error on something in the way of features directory', () => {
 })
 
 test('empty feature collection', () => {
-  const streamIn = getStream(`${geojsonDir}/feature-collection-empty.geojson`)
+  const streamIn = getStream(`${fixturesDir}/feature-collection-empty.geojson`)
 
   expect.assertions(2)
   return explodeTest(streamIn)
@@ -112,7 +112,7 @@ test('empty feature collection', () => {
 })
 
 test('feature collection with one element', () => {
-  const streamIn = getStream(`${geojsonDir}/feature-collection-one.geojson`)
+  const streamIn = getStream(`${fixturesDir}/feature-collection-one.geojson`)
 
   expect.assertions(2)
   return explodeTest(streamIn)
@@ -120,24 +120,24 @@ test('feature collection with one element', () => {
     .then(() =>
       expectJsonEqual(
         `${featuresDir}/1.geojson`,
-        `${geojsonDir}/feature-first.geojson`
+        `${fixturesDir}/feature-first.geojson`
       )
     )
 })
 
 test('feature collection with two elements', () => {
-  const streamIn = getStream(`${geojsonDir}/feature-collection-two.geojson`)
+  const streamIn = getStream(`${fixturesDir}/feature-collection-two.geojson`)
 
   expect.assertions(3)
   return explodeTest(streamIn).then(() => {
     expect(fs.readdirSync(featuresDir)).toEqual(['1.geojson', '2.geojson'])
     expectJsonEqual(
       `${featuresDir}/1.geojson`,
-      `${geojsonDir}/feature-first.geojson`
+      `${fixturesDir}/feature-first.geojson`
     )
     expectJsonEqual(
       `${featuresDir}/2.geojson`,
-      `${geojsonDir}/feature-second.geojson`
+      `${fixturesDir}/feature-second.geojson`
     )
   })
 })
@@ -146,7 +146,7 @@ test('directory option', () => {
   const otherFeatures = 'other-features'
   clearFeaturesDir(otherFeatures)
 
-  const streamIn = getStream(`${geojsonDir}/feature-collection-empty.geojson`)
+  const streamIn = getStream(`${fixturesDir}/feature-collection-empty.geojson`)
 
   expect.assertions(1)
   return explodeTest(streamIn)
@@ -156,7 +156,7 @@ test('directory option', () => {
 
 test('extension option', () => {
   const extension = 'json'
-  const streamIn = getStream(`${geojsonDir}/feature-collection-one.geojson`)
+  const streamIn = getStream(`${fixturesDir}/feature-collection-one.geojson`)
 
   expect.assertions(1)
   return explodeTest(streamIn, { extension }).then(() =>
@@ -165,7 +165,7 @@ test('extension option', () => {
 })
 
 test('include bboxes in filenames basic', () => {
-  const streamIn = getStream(`${geojsonDir}/feature-collection-two.geojson`)
+  const streamIn = getStream(`${fixturesDir}/feature-collection-two.geojson`)
   const includeBboxes = true
 
   expect.assertions(1)
@@ -179,7 +179,7 @@ test('include bboxes in filenames basic', () => {
 
 test('include bboxes in filenames, features with same bbox', () => {
   const streamIn = getStream(
-    `${geojsonDir}/feature-collection-same-bbox.geojson`
+    `${fixturesDir}/feature-collection-same-bbox.geojson`
   )
   const includeBboxes = true
 
@@ -194,7 +194,7 @@ test('include bboxes in filenames, features with same bbox', () => {
 
 test('include bboxes in filenames, warn if unable to compute bbox and put empty array in filename', () => {
   const streamIn = getStream(
-    `${geojsonDir}/feature-collection-with-a-bad-feature.geojson`
+    `${fixturesDir}/feature-collection-with-a-bad-feature.geojson`
   )
   const warn = jest.fn()
   const includeBboxes = true
