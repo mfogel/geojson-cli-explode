@@ -17,7 +17,7 @@ $ ls features/
 
 ## Usage
 
-A GeoJSON file containing a `FeatureCollection` is expected via `stdin`. The `FeatureCollection` will be split into a series of individual files placed within the same directory, each file containing one `Feature`.
+A GeoJSON file containing a `FeatureCollection` is expected via `stdin`. The `FeatureCollection` will be split into a series of individual files placed within the same directory, each file containing one `Feature`. By default, the files will be named `1.geojson`, `2.geojson`, etc.
 
 ## Options
 
@@ -31,19 +31,23 @@ Use `extension` as the filename extension for the `Feature` files. Defaults to `
 
 ### `--include-bboxes-in-filenames`
 
-If specified, the filename for each `Feature` file will be of the format:
+If specified, the filename for each `Feature` file will including its bounding box. The bounding box will be rounded outward to six decimal places, and the filenames will be formatted like so:
 
 ```
 <int: position in original FeatureCollection>.<bounding box of Feature>.<extension (default: 'geojson')>
 ```
 
-Example filename: `42.[-58.5314588,-34.705637,-58.3351249,-34.5265535].geojson`
+For example: `42.[-58.531458,-34.70563,-58.335124,-34.526553].geojson`
 
 ### `-s` / `--silent`
 
 Send any warnings (normally written to `stderr`) straight to `/dev/null`.
 
 ## Changelog
+
+### Master
+
+* Limit bboxes in filenames to six decimal places of percision
 
 ### 0.1.2
 

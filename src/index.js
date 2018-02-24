@@ -22,6 +22,20 @@ const explode = (streamIn, opts = {}) => {
     reject(err)
   }
 
+  const round = (value, upOrDown) => {
+    const rounder = upOrDown ? Math.ceil : Math.floor
+    const million = 1000000
+    return rounder(value * million) / million
+  }
+
+  // input modified direcdtly
+  const roundBBox = bbox => {
+    bbox[0] = round(bbox[0], false)
+    bbox[1] = round(bbox[1], false)
+    bbox[2] = round(bbox[2], true)
+    bbox[3] = round(bbox[3], true)
+  }
+
   let seenType = false
   const checkType = obj => {
     if (obj['type'] === 'FeatureCollection') seenType = true
@@ -41,6 +55,7 @@ const explode = (streamIn, opts = {}) => {
       } catch (err) {
         bboxComputeError = err
       }
+      if (bbox.length > 0) roundBBox(bbox)
       filenameParts.push(JSON.stringify(bbox))
     }
     filenameParts.push(opts.extension)

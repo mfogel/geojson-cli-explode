@@ -177,6 +177,20 @@ test('include bboxes in filenames basic', () => {
   })
 })
 
+test('include bboxes in filenames close to zero', () => {
+  const streamIn = getStream(
+    `${fixturesDir}/feature-collection-close-to-zero.geojson`
+  )
+  const includeBboxes = true
+
+  expect.assertions(1)
+  return explodeTest(streamIn, { includeBboxes }).then(() => {
+    expect(fs.readdirSync(featuresDir)).toEqual([
+      '1.[-0.000001,-0.000001,0.000001,0.000001].geojson'
+    ])
+  })
+})
+
 test('include bboxes in filenames, features with same bbox', () => {
   const streamIn = getStream(
     `${fixturesDir}/feature-collection-same-bbox.geojson`
