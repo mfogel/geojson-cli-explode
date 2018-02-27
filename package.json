@@ -1,6 +1,6 @@
 {
   "name": "geojson-cli-explode",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Explode your GeoJSON FeatureCollections into directories of separate GeoJSON Feature files.",
   "repository": "github:mfogel/geojson-cli-explode",
   "main": "src/index.js",

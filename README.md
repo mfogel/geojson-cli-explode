@@ -45,7 +45,7 @@ Send any warnings (normally written to `stderr`) straight to `/dev/null`.
 
 ## Changelog
 
-### Master
+### 0.2
 
 * Limit bboxes in filenames to six decimal places of percision
 
