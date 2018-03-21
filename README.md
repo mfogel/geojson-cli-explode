@@ -3,7 +3,7 @@
 Explode your GeoJSON FeatureCollections into directories of separate GeoJSON Feature files.
 
 [![npm version](https://img.shields.io/npm/v/geojson-cli-explode.svg)](https://www.npmjs.com/package/geojson-cli-explode)
-[![build status](https://img.shields.io/travis/mfogel/geojson-cli-explode.svg)](https://travis-ci.org/mfogel/geojson-cli-explode)
+[![build status](https://img.shields.io/travis/mfogel/geojson-cli-explode/master.svg)](https://travis-ci.org/mfogel/geojson-cli-explode)
 [![test coverage](https://img.shields.io/coveralls/mfogel/geojson-cli-explode/master.svg)](https://coveralls.io/r/mfogel/geojson-cli-explode)
 
 ## Quickstart
